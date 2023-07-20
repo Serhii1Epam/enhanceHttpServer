@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Serhii1Epam/enhanceHttpServer/pkg/appdb"
 	"github.com/gorilla/websocket"
 )
 
@@ -36,7 +35,7 @@ func NewWsData() *WsData {
 	}
 }
 
-func (wd *WsData) StartWs(db *appdb.Database, w http.ResponseWriter, r *http.Request) error {
+func (wd *WsData) StartWs(w http.ResponseWriter, r *http.Request) error {
 	var err error
 	wd.upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	wd.wsConn, err = wd.upgrader.Upgrade(w, r, nil)
@@ -47,7 +46,7 @@ func (wd *WsData) StartWs(db *appdb.Database, w http.ResponseWriter, r *http.Req
 		return err
 	}
 
-	wd.openWs()
+	wd.OpenWs()
 
 	/*if err = wd.openWs(); err != nil {
 		log.Printf("2:FAILED.\n")
@@ -58,7 +57,7 @@ func (wd *WsData) StartWs(db *appdb.Database, w http.ResponseWriter, r *http.Req
 	return nil
 }
 
-func (wd *WsData) openWs() error {
+func (wd *WsData) OpenWs() error {
 	if wd.wsConn == nil {
 		return errors.New("Connection not created.")
 	}

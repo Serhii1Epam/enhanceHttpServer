@@ -2,6 +2,7 @@ package jwttoken
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -13,10 +14,13 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func AddJwtToken(w http.ResponseWriter, user string) error {
+func AddJwtToken(user string) (string, error) {
 	//mySigningKey := []byte(s.db.Select(s.user.User)) //hash
 	mySigningKey := []byte("SecretYouShouldHide")
 	// Create the JWT claims, which includes the username and expiry time
+	if user == "" {
+		return "", errors.New("Claim data incorrect")
+	}
 	claims := &Claims{
 		User: user,
 		StandardClaims: jwt.StandardClaims{
@@ -29,10 +33,9 @@ func AddJwtToken(w http.ResponseWriter, user string) error {
 	tokenStr, err := token.SignedString(mySigningKey)
 
 	if err != nil {
-		return err
+		return "", err
 	}
-	w.Header().Add("Jwt-Token", tokenStr)
-	return nil
+	return tokenStr, nil
 }
 
 func ValidateJwtToken(r *http.Request) (error, bool) {
@@ -43,6 +46,7 @@ func ValidateJwtToken(r *http.Request) (error, bool) {
 	}
 
 	tokenStr := r.Header.Get("Jwt-Token")
+	fmt.Printf("tokenStr: %s\n", tokenStr)
 	//Claims
 	claims := &Claims{}
 	//Parse token
@@ -51,8 +55,8 @@ func ValidateJwtToken(r *http.Request) (error, bool) {
 	})
 
 	if err != nil {
-		//fmt.Printf("step1: claim data [%v]", claims)
-		return errors.New("Can't parse JWT token."), false
+		//fmt.Printf("step1: claim data [%v], tokenStr[%v]", claims, tokenStr)
+		return err, false
 	}
 
 	if token == nil || !token.Valid {

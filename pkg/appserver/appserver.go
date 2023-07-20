@@ -97,10 +97,12 @@ func (s *Appserver) SrvRun() {
 			return
 		}
 		//Add JWT token to headers
-		if err := jwttoken.AddJwtToken(w, s.user.User); err != nil {
+		tokenStr, err := jwttoken.AddJwtToken(s.user.User)
+		if err != nil {
 			s.writeResponseError(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		w.Header().Add("Jwt-Token", tokenStr)
 		//Redirect to chat WebSocket
 		//s.setResponseStatus(http.StatusMovedPermanently, http.StatusText(http.StatusMovedPermanently))
 		//http.Redirect(w, r, "/ws", s.respStat.code)
@@ -132,7 +134,7 @@ func (s *Appserver) SrvRun() {
 	wsHandler := func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Upgrade connection to WebSocket... ")
 		fmt.Println(r)
-		s.wsd.StartWs(s.db, w, r)
+		s.wsd.StartWs(w, r)
 	}
 
 	s.mux.Handle("/about", s.middelwareLog(http.HandlerFunc(aboutHandler)))
