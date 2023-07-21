@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/Serhii1Epam/enhanceHttpServer/pkg/jwttoken"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAddJwtToken(t *testing.T) {
@@ -83,5 +84,17 @@ func TestValidateJwtToken(t *testing.T) {
 				t.Errorf("ValidateJwtToken() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func BenchmarkValidateJwtToken(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		tokenStr, _ := jwttoken.AddJwtToken("TestUser")
+		err, _ := jwttoken.ValidateJwtToken(&http.Request{
+			Method: http.MethodPost,
+			Header: http.Header{
+				"Jwt-Token": []string{tokenStr},
+			}})
+		assert.NoError(b, err)
 	}
 }
