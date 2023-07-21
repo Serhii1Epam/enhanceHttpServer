@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/Serhii1Epam/enhanceHttpServer/pkg/appdb"
+	"github.com/Serhii1Epam/enhanceHttpServer/pkg/hub"
 	"github.com/Serhii1Epam/enhanceHttpServer/pkg/jwttoken"
 	"github.com/Serhii1Epam/enhanceHttpServer/pkg/userdata"
 	"github.com/Serhii1Epam/enhanceHttpServer/pkg/wsserver"
@@ -27,12 +28,12 @@ func NewResponseError() *responseStatus {
 }
 
 type Appserver struct {
-	mux      *http.ServeMux
-	db       *appdb.Database
-	user     *userdata.UserData
-	respStat *responseStatus
-	wsd      *wsserver.WsData
-	//wsHub     *wsserver.Hub
+	mux       *http.ServeMux
+	db        *appdb.Database
+	user      *userdata.UserData
+	respStat  *responseStatus
+	wsd       *wsserver.WsData
+	wsHub     *hub.Hub
 	Is_runned bool
 }
 
@@ -84,8 +85,8 @@ func (s *Appserver) SrvRun() {
 	s.respStat = NewResponseError()
 	s.mux = http.NewServeMux()
 	s.wsd = wsserver.NewWsData()
-	//s.wsHub = wsserver.NewHub()
-	//go s.wsHub.Run()
+	s.wsHub = hub.NewHub()
+	go s.wsHub.StartHub()
 
 	userLoginHandler := func(w http.ResponseWriter, r *http.Request) {
 		if err := s.userHandler(r); err != nil {
@@ -133,8 +134,7 @@ func (s *Appserver) SrvRun() {
 
 	wsHandler := func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Upgrade connection to WebSocket... ")
-		fmt.Println(r)
-		s.wsd.StartWs(w, r)
+		s.wsd.StartWs(s.wsHub, w, r)
 	}
 
 	s.mux.Handle("/about", s.middelwareLog(http.HandlerFunc(aboutHandler)))

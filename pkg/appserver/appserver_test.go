@@ -12,23 +12,43 @@ import (
 	"github.com/Serhii1Epam/enhanceHttpServer/pkg/userdata"
 )
 
-func TestNewServer(t *testing.T) {
-	srv := appserver.NewServer()
-	if srv == nil {
-		t.Errorf("appServer creation error!")
-	}
-}
-
 func TestAppserver_IsRun(t *testing.T) {
-	srv := appserver.NewServer()
+	tests := []struct {
+		name string
+		need bool
+		want bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "AppServer (false) test...",
+			need: false,
+			want: false,
+		},
+		{
+			name: "AppServer (true) test...",
+			need: true,
+			want: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := appserver.NewServer()
+			srv.Is_runned = tt.need
+			if srv.IsRun() != tt.want {
+				t.Errorf("IsRun error!")
+			}
+		})
+	}
+	/*srv := appserver.NewServer()
 	if srv.IsRun() != false {
-		t.Errorf("IsRun (false) error!")
+
 	}
 
 	srv.Is_runned = true
 	if srv.IsRun() != true {
 		t.Errorf("IsRun (true) error!")
-	}
+	}*/
 
 }
 
@@ -160,6 +180,13 @@ func TestAppserver_logMsgToConsole(t *testing.T) {
 			appserver.ExportReqLogMsgToConsole(s, tt.args.r)
 			//appserver.ExportRespLogMsgToConsole(s, tt.args.w)
 		})
+	}
+}
+
+func TestNewServer(t *testing.T) {
+	srv := appserver.NewServer()
+	if srv == nil {
+		t.Errorf("appServer creation error!")
 	}
 }
 

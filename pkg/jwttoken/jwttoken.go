@@ -2,7 +2,6 @@ package jwttoken
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -25,7 +24,7 @@ func AddJwtToken(user string) (string, error) {
 		User: user,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
-			ExpiresAt: time.Now().Add(time.Minute * 3).Unix(),
+			ExpiresAt: time.Now().Add(time.Minute * 30).Unix(),
 		},
 	}
 
@@ -46,7 +45,6 @@ func ValidateJwtToken(r *http.Request) (error, bool) {
 	}
 
 	tokenStr := r.Header.Get("Jwt-Token")
-	fmt.Printf("tokenStr: %s\n", tokenStr)
 	//Claims
 	claims := &Claims{}
 	//Parse token
@@ -55,12 +53,10 @@ func ValidateJwtToken(r *http.Request) (error, bool) {
 	})
 
 	if err != nil {
-		//fmt.Printf("step1: claim data [%v], tokenStr[%v]", claims, tokenStr)
 		return err, false
 	}
 
 	if token == nil || !token.Valid {
-		//fmt.Printf("step2: %v\n", token.Valid)
 		return errors.New("Can't parse JWT token."), false
 	}
 
