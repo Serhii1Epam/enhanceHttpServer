@@ -87,9 +87,16 @@ func TestValidateJwtToken(t *testing.T) {
 	}
 }
 
-func BenchmarkValidateJwtToken(b *testing.B) {
+func BenchmarkAddJwtToken(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		tokenStr, _ := jwttoken.AddJwtToken("TestUser")
+		_, err := jwttoken.AddJwtToken("TestUser")
+		assert.NoError(b, err)
+	}
+}
+
+func BenchmarkValidateJwtToken(b *testing.B) {
+	tokenStr, _ := jwttoken.AddJwtToken("TestUser")
+	for i := 0; i < b.N; i++ {
 		err, _ := jwttoken.ValidateJwtToken(&http.Request{
 			Method: http.MethodPost,
 			Header: http.Header{

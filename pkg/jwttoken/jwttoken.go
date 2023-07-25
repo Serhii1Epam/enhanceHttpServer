@@ -8,6 +8,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+// Regular
 type Claims struct {
 	User string `json:"user"`
 	jwt.StandardClaims
@@ -20,15 +21,19 @@ func AddJwtToken(user string) (string, error) {
 	if user == "" {
 		return "", errors.New("Claim data incorrect")
 	}
-	claims := &Claims{
+
+	//For tests old
+	/*claims := &Claims{
 		User: user,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: time.Now().Add(time.Minute * 30).Unix(),
 		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	}*/
+	//For tests old
+	//token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	//For tests new
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{ExpiresAt: time.Now().Add(time.Minute * 30).Unix()})
 	tokenStr, err := token.SignedString(mySigningKey)
 
 	if err != nil {
@@ -48,6 +53,13 @@ func ValidateJwtToken(r *http.Request) (error, bool) {
 	//Claims
 	claims := &Claims{}
 	//Parse token
+
+	//For tests mem.*
+	/*token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		return []byte("SecretYouShouldHide"), nil
+	})*/
+
+	//For tests mem.*
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte("SecretYouShouldHide"), nil
 	})
