@@ -1,0 +1,29 @@
+syntax="proto3";
+
+package api;
+
+service Hasher {
+    rpc GetHash (GetHashReq) returns (GetHashResp);
+    rpc CheckHash (CheckHashReq) returns (CheckHashResp);
+}
+
+option go_package = "./";
+
+message GetHashReq {
+    string name = 1;
+    string pass = 2;
+}
+
+message GetHashResp {
+    string hash = 1;
+}
+
+message CheckHashReq {
+    string hash = 1;
+    string pass = 2;
+}
+
+message CheckHashResp {
+    bool resp = 1;
+}
+
