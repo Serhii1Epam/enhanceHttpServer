@@ -21,20 +21,28 @@ type hsr_server struct {
 	pb.UnimplementedHasherServer
 }
 
-func (s hsr_server) GetHash(ctx context.Context, in *pb.GetHashReq) (out *pb.GetHashResp, err error) {
+func (s hsr_server) GetHash(ctx context.Context, in *pb.GetHashReq) (*pb.GetHashResp, error) {
+	var (
+		err error
+		out string
+	)
 	log.Printf("GetHash() received: name[%v], pass[%v]", in.GetName(), in.GetPass())
-	out.Hash, err = hasher.NewHasher(in.GetPass()).HashPassword()
-	return out, err
+	out, err = hasher.NewHasher(in.GetPass()).HashPassword()
+	log.Printf("GetHash() HashPassword returns [%v]", out)
+	return &pb.GetHashResp{Hash: out}, err
 }
 
-func (s hsr_server) CheckHash(ctx context.Context, in *pb.CheckHashReq) (out *pb.CheckHashResp, err error) {
+func (s hsr_server) CheckHash(ctx context.Context, in *pb.CheckHashReq) (*pb.CheckHashResp, error) {
+	var (
+		err error
+		out bool
+	)
 	log.Printf("CheckHash() received: hash[%v], pass[%v]", in.GetHash(), in.GetPass())
-	err = nil
-	out.Resp = hasher.NewHasher(in.GetPass()).CheckPasswordHash(in.GetHash())
-	if !out.Resp {
-		err = errors.New("Invalid Hash.")
+	out = hasher.NewHasher(in.GetPass()).CheckPasswordHash(in.GetHash())
+	if !out {
+		err = errors.New("Invalid Hash/Password.")
 	}
-	return out, err
+	return &pb.CheckHashResp{Resp: out}, err
 }
 
 func main() {
